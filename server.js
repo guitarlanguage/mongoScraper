@@ -30,7 +30,7 @@ app.use(express.static("public"));
 mongoose.connect("mongodb://localhost/mongoscraper");
 
 // var url = 'mongodb://localhost:27017/myproject';
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URI, {
