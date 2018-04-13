@@ -30,12 +30,12 @@ app.use(express.static("public"));
 mongoose.connect("mongodb://localhost/mongoscraper");
 
 // var url = 'mongodb://localhost:27017/myproject';
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
+// var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
 
-mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URI, {
-  useMongoClient: true
-});
+// mongoose.Promise = Promise;
+// mongoose.connect(MONGODB_URI, {
+//   useMongoClient: true
+// });
 
 // Routes
 
@@ -55,10 +55,10 @@ app.get("/scrape", function(req, res) {
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("a")
+        // .children("a")
         .text();
       result.link = $(this)
-        .children("a")
+        .parent("a")
         .attr("href");
 
       // Create a new Article using the `result` object built from scraping
