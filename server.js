@@ -27,15 +27,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/mongoscraper");
+// mongoose.connect("mongodb://localhost/mongoscraper");
 
-// var url = 'mongodb://localhost:27017/myproject';
-// var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
+// If deployed, use the deployed database. Otherwise use the local mongoscraper database
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
 
-// mongoose.Promise = Promise;
-// mongoose.connect(MONGODB_URI, {
-//   useMongoClient: true
-// });
+// Set mongoose to leverage built in JavaScript ES6 Promises
+// Connect to the Mongo DB
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI, {
+  useMongoClient: true
+});
 
 // Routes
 
