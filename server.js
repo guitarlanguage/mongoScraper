@@ -2,6 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
+var exphbs = require("express-handlebars");
 
 // Our scraping tools
 // Axios is a promised-based http library, similar to jQuery's Ajax method
@@ -24,13 +25,14 @@ app.use(logger("dev"));
 // Use body-parser for handling form submissions
 app.use(bodyParser.urlencoded({ extended: true }));
 // Use express.static to serve the public folder as a static directory
-app.use(express.static("public"));
-
-// Connect to the Mongo DB
-// mongoose.connect("mongodb://localhost/mongoscraper");
+ app.use(express.static("public"));
 
 // If deployed, use the deployed database. Otherwise use the local mongoscraper database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
+
+// Connect Handlebars to our Express app
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
@@ -40,6 +42,9 @@ mongoose.connect(MONGODB_URI, {
 });
 
 // Routes
+app.get('/hello ',function(req, res){
+  res.render('home')
+})
 
 // A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
@@ -49,23 +54,25 @@ app.get("/scrape", function(req, res) {
     var $ = cheerio.load(response.data);
 
     console.log(response);
-
+  
     // Now, we grab every headline-link within a h4, and do the following:
-    $("h4.headline-link").each(function(i, element) {
+    $("li.mixed-feed__item mixed-feed__item--article").each(function(i, element) {
       // Save an empty result object
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("a")
+        .children().children("h4")
         .text();
       result.link = $(this)
-        .parent("a")
-        .attr("href")
+        .children("a")
+        .attr("href");
 
       result.summary = $(this)
-        .child("h5")
+        .children().children("h5")
         .text();
+        // .pretty();
+       
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -78,7 +85,7 @@ app.get("/scrape", function(req, res) {
           return res.json(err);
         });
     });
-
+      
     // If we were able to successfully scrape and save an Article, send a message to the client
     res.send("Scrape Complete");
   });

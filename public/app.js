@@ -5,7 +5,7 @@ $.getJSON("/articles", function(data) {
   for (var i = 0; i < data.length; i++) {
     // Display the apropos information on the page
     // $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + "<a href='" + data[i].link + "'>" + "</a>" + "</p>");
-    $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>" );
+    $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "<br />" + data[i].summary + "</p>" );
     // $("#articles").append(`<p data-id="");
   }
 });
@@ -28,6 +28,8 @@ $(document).on("click", "p", function() {
       console.log(data);
       // The title of the article
       $("#notes").append("<h2>" + data.title + "</h2>");
+      //display the link
+      $("#notes").append('<a href="${data.link}"></a>');
       // An input to enter a new title
       $("#notes").append("<input id='titleinput' name='title' >");
       // A textarea to add a new note body
