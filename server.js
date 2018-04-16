@@ -13,7 +13,7 @@ var cheerio = require("cheerio");
 // Require all models
 var db = require("./models");
 
-ar port = process.env.PORT || 3000;
+var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
@@ -31,8 +31,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
 
 // Connect Handlebars to our Express app
-app.engine('handlebars', exphbs({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
+app.engine("handlebars", exphbs({defaultLayout: "main"}));
+app.set("view engine", "handlebars");
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
@@ -42,7 +42,7 @@ mongoose.connect(MONGODB_URI, {
 });
 
 // Routes
-app.get('/hello ',function(req, res){
+app.get('/',function(req, res){
   res.render('home')
 })
 
