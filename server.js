@@ -58,7 +58,21 @@ mongoose.connect(MONGODB_URI, {
 // app.use(routes);
 
 app.get("/", function(req, res) {
-  res.render("home");
+  //find unsaved articles
+  db.Article.find({ isSaved: false }, null, { sort: { _id: -1 } }, function(
+    err,
+    docs
+  ) {
+    if (data === 0) {
+      res.render("starter", {
+        message: "Please click new articles for new articles"
+      });
+    } else {
+      res.render("index", {
+        articles: data
+      });
+    }
+  });
 });
 
 // A GET route for scraping the echoJS website
