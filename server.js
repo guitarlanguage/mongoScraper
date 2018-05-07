@@ -121,6 +121,7 @@ app.get("/scrape", function(req, res) {
 
     // If we were able to successfully scrape and save an Article, send a message to the client
     res.send("Scrape Complete");
+    res.redirect("/");
   });
 });
 
@@ -176,6 +177,63 @@ app.post("/articles/:id", function(req, res) {
       // If an error occurred, send it to the client
       res.json(err);
     });
+});
+
+app.get("/saved", function(req, res) {
+  db.Article.find(
+    {
+      savedstatus: true
+    },
+    null,
+    {
+      sort: {
+        _id: -1
+      }
+    },
+    function(err, data) {
+      if (data.length === 0) {
+        res.render("starter", {
+          message: "Please go to the home page and click 'browse'"
+        });
+      } else {
+        res.render("saved", {
+          articles: data
+        });
+      }
+    }
+  );
+});
+
+app.post("/save/:id", function(req, res) {
+  db.Article.findById(req.params.id, function(err, data) {
+    db.Article.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          savedstatus: true
+        }
+      },
+      {
+        new: true
+      },
+      function(err, data) {
+        res.redirect("/");
+      }
+    );
+  });
+});
+
+app.post("/delete/:id", function(req, res) {
+  db.Article.findById(req.params.id, function(err, data) {
+    db.Article.findByIdAndRemove(
+      {
+        _id: req.params.id
+      },
+      function(err, data) {
+        res.redirect("/saved");
+      }
+    );
+  });
 });
 
 // Start the server
