@@ -13,26 +13,39 @@ var cheerio = require("cheerio");
 // Require all models
 var db = require("./models");
 
+// for localhost: 3000 or to push to build
 var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
 
-// Configure middleware
+// Set Handlebars Section ---------------------------
+var exphbs = require("express-handlebars");
+
+app.engine(
+  "handlebars",
+  exphbs({
+    defaultLayout: "main"
+  })
+);
+app.set("view engine", "handlebars");
+
+//----------------------------------------------------
 
 // Use morgan logger for logging requests
 app.use(logger("dev"));
+
 // Use body-parser for handling form submissions
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// parse application/json
+app.use(bodyParser.json());
+
 // Use express.static to serve the public folder as a static directory
- app.use(express.static("public"));
+app.use(express.static("public"));
 
 // If deployed, use the deployed database. Otherwise use the local mongoscraper database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
-
-// Connect Handlebars to our Express app
-app.engine("handlebars", exphbs({defaultLayout: "main"}));
-app.set("view engine", "handlebars");
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
@@ -41,10 +54,12 @@ mongoose.connect(MONGODB_URI, {
   useMongoClient: true
 });
 
-// Routes
-app.get('/',function(req, res){
-  res.render('home')
-})
+// var routes = require('./routes');
+// app.use(routes);
+
+app.get("/", function(req, res) {
+  res.render("home");
+});
 
 // A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
@@ -54,25 +69,29 @@ app.get("/scrape", function(req, res) {
     var $ = cheerio.load(response.data);
 
     console.log(response);
-  
+
     // Now, we grab every headline-link within a h4, and do the following:
-    $("li.mixed-feed__item mixed-feed__item--article").each(function(i, element) {
+    $("li.mixed-feed__item mixed-feed__item--article").each(function(
+      i,
+      element
+    ) {
       // Save an empty result object
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children().children("h4")
+        .children()
+        .children("h4")
         .text();
       result.link = $(this)
         .children("a")
         .attr("href");
 
       result.summary = $(this)
-        .children().children("h5")
+        .children()
+        .children("h5")
         .text();
-        // .pretty();
-       
+      // .pretty();
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -85,7 +104,7 @@ app.get("/scrape", function(req, res) {
           return res.json(err);
         });
     });
-      
+
     // If we were able to successfully scrape and save an Article, send a message to the client
     res.send("Scrape Complete");
   });
@@ -129,7 +148,11 @@ app.post("/articles/:id", function(req, res) {
       // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
       // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
       // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+      return db.Article.findOneAndUpdate(
+        { _id: req.params.id },
+        { note: dbNote._id },
+        { new: true }
+      );
     })
     .then(function(dbArticle) {
       // If we were able to successfully update an Article, send it back to the client
